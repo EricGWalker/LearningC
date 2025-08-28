@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 int main(){
-	puts("Hello, world!");
+	if(puts("Hello, world!") == EOF){
+		return EXIT_FAILURE;
+	}
 	return EXIT_SUCCESS;
 }
