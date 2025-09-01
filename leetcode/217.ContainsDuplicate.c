@@ -37,7 +37,7 @@ hashList *createHashList(size_t capacity) {
   hashList *hashList_p = (hashList *)calloc(1, sizeof(hashList));
   hashList_p->capacity = capacity;
   hashList_p->size = 0;
-  hashList_p->array = (int **)calloc(capacity, sizeof(int*));
+  hashList_p->array = (int **)calloc(capacity, sizeof(int *));
 
   return hashList_p;
 }
@@ -50,7 +50,7 @@ hashList *createHashList(size_t capacity) {
  */
 void resizeHashList(hashList *hashList_p) {
   size_t new_capacity = hashList_p->capacity * 2;
-  int **new_array = calloc(new_capacity, sizeof(int));
+  int **new_array = calloc(new_capacity, sizeof(int *));
 
   // Iterate through the old array
   for (size_t i = 0; i < hashList_p->capacity; ++i) {
@@ -63,10 +63,9 @@ void resizeHashList(hashList *hashList_p) {
       // going to be O(1)
       for (size_t offset = 0; offset < new_capacity; ++offset) {
         size_t target_index = (new_init_index + offset) % new_capacity;
-        int *target = new_array[target_index];
-        if (target == NULL) {
-          target = malloc(sizeof(int));
-          *target = *value_p;
+        if (new_array[target_index] == NULL) {
+          new_array[target_index] = (int *)malloc(sizeof(int));
+          *new_array[target_index] = *value_p;
           break;
         } else {
           continue;
