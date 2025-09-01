@@ -79,9 +79,38 @@ void resizeHashList(hashList *hashList_p) {
   hashList_p->array = new_array;
 }
 
-void insertInHashList(int value, hashList *hashList_p) {
+/*
+ * This function takes a hashlist and inserts a value if it's not found
+ * Otherwise it reurns True if the value already exists in the hashList
+ */
+bool seenBeforeInHashList(int value, hashList *hashList_p) {
   assert(hashList_p->size < hashList_p->capacity);
-  size_t index = value % hashList_p->capacity;
+  // If we need to insert a value into the hashList this will save us time.
+  size_t null_idx;
+  // Step 1 is to see if we can find the value in the hashList
+  size_t init_index = value % hashList_p->capacity;
+  // Iterate through the array starting at the init_index until a
+  // NULL pointer is found While the worst case is O(N) the average case is
+  // going to be O(1)
+  for (size_t offset = 0; offset < hashList_p->capacity; ++offset) {
+    size_t target_index = (init_index + offset) % hashList_p->capacity;
+    if (hashList_p->array[target_index] == NULL) {
+      null_idx = target_index;
+      break;
+    } else if(*hashList_p->array[target_index] == value){
+      return true;
+    }
+  }
+  // We've scanned the hashList for our value and learned that it isn't there
+  hashList_p->array[null_idx] = malloc(sizeof(int *));
+  *hashList_p->array[null_idx] = value;
+  hashList_p->size += 1;
+  //Finally if the size is too big we need to resize.
+  if(hashList_p->size > hashList_p->capacity / 2.0){
+    resizeHashList(hashList_p);
+  }
+
+  return false;
 }
 
 bool containsDuplicate(int *nums, int numsSize) {
@@ -90,16 +119,14 @@ bool containsDuplicate(int *nums, int numsSize) {
 }
 
 int main() {
-  hashList *hashList_p = createHashList(10);
-  size_t *capacity_p = &hashList_p->capacity;
-  size_t *size_p = &hashList_p->size;
-  int **array = hashList_p->array;
-  array[1] = malloc(sizeof(int));
-  *array[1] = 5;
-  array[9] = malloc(sizeof(int));
-  *array[9] = 100;
-  printHashList(hashList_p);
-  resizeHashList(hashList_p);
+  hashList *hashList_p = createHashList(1);
+  seenBeforeInHashList(1, hashList_p);
+  seenBeforeInHashList(2, hashList_p);
+  seenBeforeInHashList(3, hashList_p);
+  seenBeforeInHashList(4, hashList_p);
+  printf("%i\n", seenBeforeInHashList(5, hashList_p));
+  printf("%i\n", seenBeforeInHashList(5, hashList_p));
+
   printHashList(hashList_p);
 
   return EXIT_SUCCESS;
