@@ -114,21 +114,20 @@ bool seenBeforeInHashList(int value, hashList *hashList_p) {
 }
 
 bool containsDuplicate(int *nums, int numsSize) {
-  // code here
-  return true;
+  hashList *hashList_p = createHashList(1);
+  for (size_t index; index < numsSize; ++index) {
+    if (seenBeforeInHashList(nums[index], hashList_p)){
+      return true;
+    }
+  }
+  return false;
 }
 
 int main() {
-  hashList *hashList_p = createHashList(1);
-  seenBeforeInHashList(1, hashList_p);
-  seenBeforeInHashList(2, hashList_p);
-  seenBeforeInHashList(3, hashList_p);
-  seenBeforeInHashList(4, hashList_p);
-  printf("%i\n", seenBeforeInHashList(5, hashList_p));
-  printf("%i\n", seenBeforeInHashList(5, hashList_p));
-
-  printHashList(hashList_p);
-
+  int noDuplicates[] = {0,1,2,3,4,5,6,7,8,9};
+  printf("noDuplicates = %i\n", containsDuplicate(noDuplicates, 10));
+  int duplicates[] = {0,2,1,0};
+  printf("Duplicates = %i\n", containsDuplicate(duplicates, 10));
   return EXIT_SUCCESS;
 }
 // vim: ts=2 sts=2 sw=2 et
