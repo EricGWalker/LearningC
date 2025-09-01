@@ -97,7 +97,7 @@ bool seenBeforeInHashList(int value, hashList *hashList_p) {
     if (hashList_p->array[target_index] == NULL) {
       null_idx = target_index;
       break;
-    } else if(*hashList_p->array[target_index] == value){
+    } else if (*hashList_p->array[target_index] == value) {
       return true;
     }
   }
@@ -105,8 +105,8 @@ bool seenBeforeInHashList(int value, hashList *hashList_p) {
   hashList_p->array[null_idx] = malloc(sizeof(int *));
   *hashList_p->array[null_idx] = value;
   hashList_p->size += 1;
-  //Finally if the size is too big we need to resize.
-  if(hashList_p->size > hashList_p->capacity / 2.0){
+  // Finally if the size is too big we need to resize.
+  if (hashList_p->size > hashList_p->capacity / 2.0) {
     resizeHashList(hashList_p);
   }
 
@@ -114,9 +114,13 @@ bool seenBeforeInHashList(int value, hashList *hashList_p) {
 }
 
 bool containsDuplicate(int *nums, int numsSize) {
-  hashList *hashList_p = createHashList(1);
+  // This makes resizing the problem useless but it let me beat 83% of the
+  // runtimes on leetcode Before I was ranked in the 5th percentile now I'm at
+  // least 83rd For memory allocation though I ranked in the 5th percentile for
+  // both.
+  hashList *hashList_p = createHashList(numsSize);
   for (size_t index; index < numsSize; ++index) {
-    if (seenBeforeInHashList(nums[index], hashList_p)){
+    if (seenBeforeInHashList(nums[index], hashList_p)) {
       return true;
     }
   }
@@ -124,9 +128,9 @@ bool containsDuplicate(int *nums, int numsSize) {
 }
 
 int main() {
-  int noDuplicates[] = {0,1,2,3,4,5,6,7,8,9};
+  int noDuplicates[] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
   printf("noDuplicates = %i\n", containsDuplicate(noDuplicates, 10));
-  int duplicates[] = {0,2,1,0};
+  int duplicates[] = {0, 2, 1, 0};
   printf("Duplicates = %i\n", containsDuplicate(duplicates, 10));
   return EXIT_SUCCESS;
 }
