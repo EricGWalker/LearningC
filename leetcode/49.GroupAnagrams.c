@@ -1,8 +1,12 @@
+#include <assert.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #define letterCount 26
 
+/*
+ * Node for a string anagrams to be chained in a linked list
+ */
 typedef struct node {
   char *string;
   struct node *next;
@@ -12,8 +16,18 @@ typedef struct {
   // This is the key
   // This will have a fixed size of 26
   unsigned int charCountArray[letterCount];
-  node stringsLinkedList;
-} pair;
+  unsigned long long hash;
+  node *stringsLinkedList;
+} hashSet;
+
+typedef struct {
+  // Total capacity of the array
+  unsigned int capacity;
+  // Total utilized capacity of the array
+  unsigned int size;
+  // pointer to the first element in the array
+  hashSet *hashSetArray;
+} hashMap;
 
 // Numbers taken form wikipedia for a fnv-1 hash
 // https://en.wikipedia.org/wiki/Fowler%E2%80%93Noll%E2%80%93Vo_hash_function
@@ -24,11 +38,47 @@ unsigned long long hash(unsigned int *charCountArray) {
   // I hope this works, and if it does. I'm sorry.
   // This is so hacky and bad
   for (uint8_t *p = (uint8_t *)charCountArray;
-       p < ((uint8_t *)charCountArray + (letterCount * sizeof(unsigned int))); p++) {
+       p < ((uint8_t *)charCountArray + (letterCount * sizeof(unsigned int)));
+       p++) {
     hash *= FNV_prime;
     hash ^= *p;
   }
   return hash;
+}
+
+hashMap *createHashMap(unsigned int capacity) {
+  assert(capacity > 0);
+  hashMap *hashMap_p = calloc(1, sizeof(hashMap));
+  hashMap_p->capacity = capacity;
+  hashMap_p->size = 0;
+  hashMap_p->hashSetArray = calloc(capacity, sizeof(hashSet));
+  return hashMap_p;
+}
+
+void doubleHashMapCapacity(hashMap *hashMap_p) {
+  unsigned int newCapacity = hashMap_p->capacity * 2;
+  hashSet *newHashSetArray = calloc(newCapacity, sizeof(hashSet));
+
+  for (unsigned int oldArrayIndex = 0; oldArrayIndex < hashMap_p->capacity;
+       oldArrayIndex++) {
+    hashSet *oldHashSet_p = &hashMap_p->hashSetArray[oldArrayIndex];
+    if (oldHashSet_p == NULL) {
+      continue;
+    }
+    // begin linear probing
+    for (unsigned int offset = 0; offset < newCapacity; offset++) {
+      unsigned int newHashSetArray_idx =
+          (oldHashSet_p->hash + offset % newCapacity);
+      if (&newHashSetArray[newHashSetArray_idx] == NULL) {
+        newHashSetArray[newHashSetArray_idx] = *oldHashSet_p;
+        break;
+      } else {
+        continue;
+      }
+    }
+  }
+  hashMap_p->capacity = newCapacity;
+  hashMap_p->hashSetArray = newHashSetArray;
 }
 
 /**
@@ -38,13 +88,15 @@ unsigned long long hash(unsigned int *charCountArray) {
  * caller calls free().
  */
 char **groupAnagrams(char **strs, int strsSize, int *returnSize,
-                      int **returnColumnSizes) {
+                     int **returnColumnSizes) {
   // todo
   return NULL;
 }
 int main() {
-  unsigned int letters[26] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
-  unsigned int letters2[26] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2};
+  unsigned int letters[26] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                              0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+  unsigned int letters2[26] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                               0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2};
   printf("%llu\n", hash(letters));
   printf("%llu\n", hash(letters2));
 }
