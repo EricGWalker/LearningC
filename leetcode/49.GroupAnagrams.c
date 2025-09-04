@@ -17,7 +17,7 @@ typedef struct {
   // This will have a fixed size of 26
   unsigned int *charCountArray;
   unsigned long long hash;
-  node *stringsLinkedList;
+  node *stringsLinkedList_p;
 } hashSet;
 
 typedef struct {
@@ -131,6 +131,7 @@ bool arraysEqual(unsigned int *array1, unsigned int *array2,
 
 /*
  * Checks if the charCountArray exists in the hashMap and returns the hashSet
+ * Returns NULL Otherwise
  */
 hashSet *getHashSet(unsigned int *charCountArray, hashMap *hashMap_p) {
   unsigned long long charHash = hash(charCountArray);
@@ -148,6 +149,38 @@ hashSet *getHashSet(unsigned int *charCountArray, hashMap *hashMap_p) {
     }
   }
   return NULL;
+}
+
+/*
+ * Insert a string into the hashMap
+ * Either by finding an existing HashSet or by creating a new one
+ */
+void insertString(char *string, unsigned int sizeOfString, hashMap *hashMap_p) {
+  unsigned int stringCharCountArray[letterCount] = {0};
+  for (char *currentChar = string; currentChar < string + sizeOfString;
+       currentChar++) {
+    unsigned int charIndex = *currentChar - 'a';
+    stringCharCountArray[charIndex]++;
+  }
+  hashSet *stringHashSet_p = getHashSet(stringCharCountArray, hashMap_p);
+
+  if (stringHashSet_p == NULL) {
+    // Create a new Hashset
+    // and insert it into the hashmap
+    stringHashSet_p = calloc(1, sizeof(hashSet));
+    *stringHashSet_p = generateHashSet(stringCharCountArray);
+    node *stringLinkedList_p = malloc(sizeof(node));
+    node stringLinkedList = {.string = string, .next = NULL};
+    *stringLinkedList_p = stringLinkedList;
+    stringHashSet_p->stringsLinkedList_p = stringLinkedList_p;
+    insertHashSet(*stringHashSet_p, hashMap_p);
+  } else {
+    node *newNextNode_p = stringHashSet_p->stringsLinkedList_p;
+    node *newNode_p = malloc(sizeof(node));
+    node newNode = {.string = string, .next = newNextNode_p};
+    *newNode_p = newNode;
+    stringHashSet_p->stringsLinkedList_p = newNode_p;
+  }
 }
 
 /**
