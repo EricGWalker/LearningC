@@ -18,6 +18,7 @@ typedef struct {
   unsigned int *charCountArray;
   unsigned long long hash;
   node *stringsLinkedList_p;
+  unsigned int depth;
 } hashSet;
 
 typedef struct {
@@ -173,6 +174,7 @@ void insertString(char *string, unsigned int sizeOfString, hashMap *hashMap_p) {
     node stringLinkedList = {.string = string, .next = NULL};
     *stringLinkedList_p = stringLinkedList;
     stringHashSet_p->stringsLinkedList_p = stringLinkedList_p;
+    stringHashSet_p->depth +=1;
     insertHashSet(*stringHashSet_p, hashMap_p);
   } else {
     node *newNextNode_p = stringHashSet_p->stringsLinkedList_p;
@@ -180,7 +182,21 @@ void insertString(char *string, unsigned int sizeOfString, hashMap *hashMap_p) {
     node newNode = {.string = string, .next = newNextNode_p};
     *newNode_p = newNode;
     stringHashSet_p->stringsLinkedList_p = newNode_p;
+    stringHashSet_p->depth +=1;
   }
+}
+
+struct returnBundle {
+  char **anagramGroups;
+  int **anagramColumnSizes;
+};
+/*
+ * Returns an int ** with the first int * being the returnArray and the values
+ * from 1 onwards being the returnColumnSizes
+ */
+struct returnBundle getReturnData(hashMap *hashMap_p) {
+  char **anagramGroups = calloc(hashMap_p->size, sizeof(char **));
+  int **anagramColumnSizes = calloc(hashMap_p->size, sizeof(int **));
 }
 
 /**
