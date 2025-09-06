@@ -96,17 +96,16 @@ void printArray(long *array, size_t arraySize) {
 
 int main() {
   srand(time(NULL)); // Seed random number generator
-  const size_t arraySize = 20;
-  long *randArray = generateRandomArray(arraySize);
-  long *staticArray = calloc(arraySize, sizeof(long));
-  printArray(randArray, arraySize);
-  quickSort(randArray, arraySize);
-  printArray(randArray, arraySize);
+  const size_t testCount = 100;
+  const size_t arrayModulus = 20;
+  for (size_t test = 0; test < testCount; ++test) {
+    size_t arraySize = ((size_t)rand() % arrayModulus) + 1;
+    long *unsortedArray = generateRandomArray(arraySize);
+    printArray(unsortedArray, arraySize);
+    quickSort(unsortedArray, arraySize);
+    printArray(unsortedArray, arraySize);
+    free(unsortedArray);
+  }
 
-  printArray(staticArray, arraySize);
-  quickSort(staticArray, arraySize);
-  printArray(staticArray, arraySize);
-  free(randArray);
-  free(staticArray);
 }
 // vim: ts=2 sts=2 sw=2 et
