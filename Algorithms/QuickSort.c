@@ -3,6 +3,7 @@
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <time.h>
 long *generateRandomArray(size_t arraySize) {
   // This way the values are readable
   const long randModulus = 20;
@@ -36,36 +37,32 @@ size_t getPivotIndex(long *partition, size_t sizeOfPartition) {
  * Sorts a partition and returns the final position of the pivot
  */
 size_t sortPartition(long *partition, size_t sizeOfPartition) {
-  assert(sizeOfPartition > 0);
-  if (sizeOfPartition == 1) {
-    return 0;
-  }
   size_t pivotIdx = getPivotIndex(partition, sizeOfPartition);
+  // Swap Pivot Value to the end of the partition
   long pivotValue = partition[pivotIdx];
   partition[pivotIdx] = partition[sizeOfPartition - 1];
   partition[sizeOfPartition - 1] = pivotValue;
   pivotIdx = sizeOfPartition - 1;
   size_t leftIdx = 0;
-  size_t rightIdx = pivotIdx - 1;
+  size_t rightIdx = sizeOfPartition - 1;
   while (leftIdx < rightIdx) {
-    // I think the <= means that this sort will not be stable
-    // But without it I feel like my program could halt with duplicate values.
-    while (partition[leftIdx] <= pivotValue && leftIdx < sizeOfPartition) {
-      leftIdx++;
+    while (partition[leftIdx] <= pivotValue && leftIdx < sizeOfPartition - 1) {
+      ++leftIdx;
     }
     while (partition[rightIdx] >= pivotValue && rightIdx > 0) {
-      rightIdx--;
+      --rightIdx;
     }
+
+    // Swap values if they get stuck while shifting
     if (leftIdx < rightIdx) {
-      long rightValue = partition[rightIdx];
-      partition[rightIdx] = partition[leftIdx];
-      partition[leftIdx] = rightValue;
+      long leftValue = partition[leftIdx];
+      partition[leftIdx] = partition[rightIdx];
+      partition[rightIdx] = leftValue;
     }
   }
-  // Left Idx Should have crossed with rightIdx by this point
-  long oldLeftValue = partition[leftIdx];
+  // LeftIndex should be >= to rightIndex
+  partition[pivotIdx] = partition[leftIdx];
   partition[leftIdx] = pivotValue;
-  partition[pivotIdx] = oldLeftValue;
   pivotIdx = leftIdx;
   return pivotIdx;
 }
@@ -98,10 +95,18 @@ void printArray(long *array, size_t arraySize) {
 }
 
 int main() {
+  srand(time(NULL)); // Seed random number generator
   const size_t arraySize = 20;
   long *randArray = generateRandomArray(arraySize);
+  long *staticArray = calloc(arraySize, sizeof(long));
   printArray(randArray, arraySize);
   quickSort(randArray, arraySize);
   printArray(randArray, arraySize);
+
+  printArray(staticArray, arraySize);
+  quickSort(staticArray, arraySize);
+  printArray(staticArray, arraySize);
+  free(randArray);
+  free(staticArray);
 }
 // vim: ts=2 sts=2 sw=2 et
